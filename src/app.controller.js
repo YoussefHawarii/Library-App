@@ -1,4 +1,5 @@
 import connectDB from "./DB/connection.js";
+import cors from "cors";
 import userRouter from "./modules/user/user.controller.js";
 import bookRouter from "./modules/book/book.controller.js";
 import libraryRouter from "./modules/library/library.controller.js";
@@ -7,6 +8,7 @@ import globalErrorHandler from "./utils/errors/globalErrorHandler.js";
 
 const bootstrap = async (app, express) => {
   await connectDB();
+  app.use(cors());
   app.use(express.json());
   app.use("/user", userRouter);
   app.use("/book", bookRouter);
