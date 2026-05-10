@@ -3,7 +3,3 @@ node_modules
 .vscode
 client_secret_*.json
 TODO.txt
-README.md
-package-lock.json
-package.json
-.gitignore
