@@ -12,6 +12,7 @@ const router = Router();
 router.post("/sendOTP", validation(userValidation.sendOTP), asyncHandler(userService.sendOTP));
 router.post("/signUp", validation(userValidation.signUp), asyncHandler(userService.signUp));
 router.post("/login", validation(userValidation.login), asyncHandler(userService.login));
+router.post("/google-login", validation(userValidation.googleLogin), asyncHandler(userService.googleLogin));
 router.post("/borrowedBooks/:bookId", Authentication, Authorization(endPoints.borrowBook), asyncHandler(userService.borrowBook));
 router.delete("/delete", Authentication, Authorization(endPoints.deleteUser), asyncHandler(userService.deleteUser));
 

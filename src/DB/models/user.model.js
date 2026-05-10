@@ -5,13 +5,18 @@ export const roles = {
   USER: "user",
 };
 
+export const loginMethods = {
+  GOOGLE: "google",
+  SYSTEM: "system",
+};
+
 const userSchema = new Schema(
   {
     name: {
       type: String,
       lowercase: true,
       minlength: [3, "name must be at least 3 characters"],
-      maxlength: [15, "name must be less than 15 characters"],
+      maxlength: [30, "name must be less than 30 characters"],
       trim: true,
       required: [true, "please provide your name"],
     },
@@ -25,12 +30,16 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: [true, "please provide a password"],
+      required: function () {
+        return this.provider == loginMethods.SYSTEM ? true : false;
+      },
       minlength: [6, "password must be at least 6 characters"],
     },
     phone: {
       type: String,
-      required: [true, "please provide your phone number"],
+      required: function () {
+        return this.provider == loginMethods.SYSTEM ? true : false;
+      },
       trim: true,
     },
     role: {
@@ -48,6 +57,11 @@ const userSchema = new Schema(
     ],
     isActived: { type: Boolean, default: false },
     isDeleted: { type: Boolean, default: false },
+    provider: {
+      type: String,
+      enum: Object.values(loginMethods),
+      default: loginMethods.SYSTEM,
+    },
   },
 
   { timestamps: true },

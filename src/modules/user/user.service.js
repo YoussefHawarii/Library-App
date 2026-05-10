@@ -1,4 +1,4 @@
-import User from "../../DB/models/user.model.js";
+import User, { loginMethods } from "../../DB/models/user.model.js";
 import Book from "../../DB/models/book.model.js";
 import BorrowedBook, { borrowedBookStatus } from "../../DB/models/borrowedBook.model.js";
 import OTP from "../../DB/models/OTP.model.js";
@@ -7,6 +7,7 @@ import { encrypt } from "../../utils/encryption/encryption.js";
 import Randomstring from "randomstring";
 import { emailEmitter } from "../../utils/emails/email.event.js";
 import { generateToken } from "../../utils/token/token.js";
+import { verifyGoogleToken } from "../../utils/signWithGoogle/google_login.js";
 
 export const sendOTP = async (req, res, next) => {
   // Check if the email already exists
@@ -52,7 +53,6 @@ export const login = async (req, res, next) => {
   if (!existingUser) {
     return next(new Error("Email not found"), { cause: 400 });
   }
-  console.log(password, existingUser.password);
   // Check if the password is correct
   if (!comparePassword({ password, hashedPassword: existingUser.password })) {
     return next(new Error("Invalid password"), { cause: 400 });
@@ -64,6 +64,30 @@ export const login = async (req, res, next) => {
   });
   const refresh_token = generateToken({
     payload: { id: existingUser._id, email: existingUser.email },
+    options: { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN },
+  });
+  return res.status(200).json({ message: "You have logged in successfully!", access_token, refresh_token });
+};
+
+//login with google
+export const googleLogin = async (req, res, next) => {
+  const { idToken } = req.body;
+  // Verify the Google token and get the user's information
+  const { email, name } = await verifyGoogleToken(idToken);
+  //check email
+  let userExists = await User.findOne({ email });
+  
+  // If the user doesn't exist, create a new user
+  if (!userExists) {
+    userExists = await User.create({ email, name, isActived: true, provider: loginMethods.GOOGLE });
+  }
+  //generate a token (simulate)
+  const access_token = generateToken({
+    payload: { id: userExists._id, email: userExists.email },
+    options: { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN },
+  });
+  const refresh_token = generateToken({
+    payload: { id: userExists._id, email: userExists.email },
     options: { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN },
   });
   return res.status(200).json({ message: "You have logged in successfully!", access_token, refresh_token });

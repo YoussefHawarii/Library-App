@@ -10,7 +10,7 @@ export const sendOTP = joi
 //signup validation
 export const signUp = joi
   .object({
-    name: joi.string().min(3).max(15).required(),
+    name: joi.string().min(3).max(30).required(),
     email: joi.string().email().required(),
     password: joi.string().min(6).required(),
     phone: joi.string().required(),
@@ -22,5 +22,11 @@ export const login = joi
   .object({
     email: joi.string().email().required(),
     password: joi.string().min(6).required(),
+  })
+  .required();
+
+export const googleLogin = joi
+  .object({
+    idToken: joi.string().required(),
   })
   .required();
