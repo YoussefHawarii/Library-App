@@ -75,7 +75,7 @@ npm run dev     # nodemon --env-file=.env index.js
 ```bash
 cd frontend/app
 npm install
-cp .env.example .env.local   # set NEXT_PUBLIC_API_BASE_URL to the backend above
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:3000" > .env.local   # point at the backend above
 npm run dev                  # runs on its own port — pass e.g. `-- -p 3001` if 3000 is taken
 ```
 

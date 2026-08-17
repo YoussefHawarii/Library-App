@@ -17,7 +17,7 @@ below.
 
 ```bash
 npm install
-cp .env.example .env.local   # then edit NEXT_PUBLIC_API_BASE_URL
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:3000" > .env.local
 npm run dev                  # http://localhost:3000 by default
 ```
 

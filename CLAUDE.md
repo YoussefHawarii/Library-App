@@ -28,7 +28,7 @@ There is no backend lint or test script configured yet (`npm test` is a placehol
 
 ```bash
 npm install
-cp .env.example .env.local   # set NEXT_PUBLIC_API_BASE_URL
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:3000" > .env.local
 npm run dev                  # dev server
 npm run build && npm start   # production build/serve
 npm run lint                 # ESLint
