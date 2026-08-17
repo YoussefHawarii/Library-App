@@ -1,92 +1,51 @@
-# Library Management System API
+# Athenaeum — Library Management System
 
-A modular REST API for managing users, books, libraries, and borrowing flows.
+A full-stack library management app: browse a book catalog, see which library
+branch holds a title, sign up with email OTP verification, log in, and borrow
+/ return books. Built as a Node.js/Express/MongoDB REST + GraphQL API with a
+Next.js frontend on top.
 
-Built with Node.js, Express, and MongoDB (Mongoose), with OTP-based signup and JWT authentication.
+## Project structure
 
-## Overview
+This is one repository with two apps:
 
-This project provides:
-
-- User registration with email OTP verification
-- Login with access and refresh tokens
-- Book CRUD-style operations (including soft delete and restore)
-- Library management with book linking
-- Borrowing and returning logic with due dates
-- Overdue borrowed books tracking
-
-## Tech Stack
-
-- Node.js `20.15.1`
-- Express `5`
-- MongoDB + Mongoose
-- Joi (request validation)
-- JWT (`jsonwebtoken`)
-- Bcrypt (password hashing)
-- CryptoJS (phone encryption)
-- Nodemailer (email sending)
-
-## Project Structure
-
-```text
-LibraryApp/
-├── index.js
-├── package.json
-├── package-lock.json
-├── vercel.json
-├── README.md
-├── TODO.txt
-└── src/
-    ├── app.controller.js
-    ├── DB/
-    │   ├── connection.js
-    │   └── models/
-    │       ├── user.model.js
-    │       ├── book.model.js
-    │       ├── library.model.js
-    │       ├── borrowedBook.model.js
-    │       └── OTP.model.js
-    ├── middleware/
-    │   ├── Authentication.middleware.js
-    │   ├── Authorization.middleware.js
-    │   └── validation.middleware.js
-    ├── modules/
-    │   ├── user/
-    │   │   ├── user.controller.js
-    │   │   ├── user.service.js
-    │   │   ├── user.validation.js
-    │   │   └── user.endpoints.js
-    │   ├── book/
-    │   │   ├── book.controller.js
-    │   │   ├── book.service.js
-    │   │   ├── book.validation.js
-    │   │   └── book.endpoints.js
-    │   ├── library/
-    │   │   ├── library.controller.js
-    │   │   ├── library.service.js
-    │   │   └── library.validation.js
-    │   └── borrowedBook/
-    │       ├── borrowedBook.controller.js
-    │       └── borrowedBook.service.js
-    └── utils/
-        ├── emails/
-        │   ├── email.event.js
-        │   ├── generateHTML.js
-        │   └── sendEmails.js
-        ├── encryption/
-        │   └── encryption.js
-        ├── errors/
-        │   ├── asyncHandler.js
-        │   └── globalErrorHandler.js
-        ├── hashing/
-        │   └── hash.js
-        └── token/
-            └── token.js
+```
+.
+├── index.js, src/          backend — Node.js/Express/MongoDB REST + GraphQL API
+├── frontend/app/           frontend — Next.js (App Router, TypeScript) client
+├── frontend/ops-runbook.md frontend release/monitoring notes + known backend limitations
+└── CLAUDE.md                deep documentation for both apps (architecture, routes, schemas)
 ```
 
-## Environment Variables
+For anything beyond this overview — full REST/GraphQL route reference, data
+models, middleware, security backlog — see [`CLAUDE.md`](CLAUDE.md), which is
+the maintained source of truth for both apps' internals.
 
-Create `.env` in the root with:
+## Tech stack
+
+**Backend**
+- Node.js `20.15.1`, Express `5`
+- MongoDB + Mongoose
+- REST + GraphQL (`graphql`, `graphql-http`) in the same service
+- JWT auth (`jsonwebtoken`) with email OTP signup and Google login (`google-auth-library`)
+- Joi validation, bcrypt password hashing, AES phone encryption (`crypto-js`)
+- Nodemailer (OTP/welcome emails), Helmet, CORS, `express-rate-limit`
+
+**Frontend**
+- Next.js 16 (App Router) + TypeScript
+- Tailwind CSS v4 — custom "reading room" theme
+- TanStack Query for server-state caching
+- react-hook-form + zod for form validation
+- axios with a shared interceptor layer
+- Vitest + Testing Library for unit tests
+
+## Getting started
+
+Run the backend and frontend as two separate processes.
+
+### 1. Backend (repo root)
+
+Create a `.env` file:
 
 ```env
 CONNECTION_URL=your_mongodb_connection_string
@@ -98,22 +57,32 @@ EMAIL_PASSWORD=your_email_app_password
 JWT_ENCRYPTION_SECRET=your_jwt_secret
 JWT_ACCESS_EXPIRES_IN=15m
 JWT_REFRESH_EXPIRES_IN=7d
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
 ```
 
-## Installation and Run
+> `EMAIL_PASSWORD` must be a Gmail **App Password** (Google Account → Security
+> → 2-Step Verification → App Passwords) — a regular account password will be
+> rejected by Gmail's SMTP auth.
 
 ```bash
 npm install
-npm run dev
+npm run dev     # nodemon --env-file=.env index.js
+# or: npm start # node --watch index.js
 ```
 
-Production mode:
+### 2. Frontend (`frontend/app/`)
 
 ```bash
-npm start
+cd frontend/app
+npm install
+cp .env.example .env.local   # set NEXT_PUBLIC_API_BASE_URL to the backend above
+npm run dev                  # runs on its own port — pass e.g. `-- -p 3001` if 3000 is taken
 ```
 
-Server entry point: `index.js`
+The frontend talks to the backend over plain HTTP using the bare REST paths
+below (`/user`, `/book`, `/library`, `/borrowed-book`) — no GraphQL, see
+`frontend/ops-runbook.md` for why. Full frontend setup/architecture notes:
+[`frontend/app/README.md`](frontend/app/README.md).
 
 ## API Routes
 
@@ -124,6 +93,7 @@ Base URL (local): `http://localhost:<PORT>`
 - `POST /sendOTP` - send signup OTP to email
 - `POST /signUp` - create account using OTP
 - `POST /login` - login and get access/refresh tokens
+- `POST /google-login` - login/register via Google ID token
 - `POST /borrowedBooks/:bookId` - borrow a book (requires auth + role)
 - `DELETE /delete` - soft-delete authenticated user (requires auth + role)
 
@@ -152,6 +122,9 @@ Base URL (local): `http://localhost:<PORT>`
 - `GET /` - list overdue borrowed books
 - `PATCH /return/:borrowedBookId` - return borrowed book (requires auth)
 
+A GraphQL endpoint is also available at `/graphql`; see `CLAUDE.md` §6 for the
+schema. It's not used by the frontend — see `frontend/ops-runbook.md` for why.
+
 ## Authentication
 
 Protected endpoints expect:
@@ -159,11 +132,6 @@ Protected endpoints expect:
 ```http
 Authorization: Bearer <access_token>
 ```
-
-Role checks are implemented in `user.endpoints.js`:
-
-- `borrowBook`: `user`
-- `deleteUser`: `user`, `admin`
 
 ## Core Business Rules (Current Implementation)
 
@@ -183,6 +151,7 @@ Role checks are implemented in `user.endpoints.js`:
 
 ## Deployment
 
-`vercel.json` is already configured for serverless deployment using `index.js`.
-
-If deploying on Vercel, add all `.env` keys as project environment variables.
+`vercel.json` is already configured for serverless deployment of the backend
+using `index.js`. If deploying on Vercel, add all `.env` keys as project
+environment variables. The frontend deploys separately — see
+`frontend/app/README.md` and `frontend/ops-runbook.md`.

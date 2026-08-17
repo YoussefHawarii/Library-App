@@ -3,3 +3,7 @@ node_modules
 .vscode
 client_secret_*.json
 TODO.txt
+.claude/
+
+# frontend planning docs — internal working notes, not part of the shipped project
+frontend/phase-*.md
