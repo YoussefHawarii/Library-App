@@ -5,7 +5,8 @@ import OTP from "../../DB/models/OTP.model.js";
 import { hashPassword, comparePassword } from "../../utils/hashing/hash.js";
 import { encrypt } from "../../utils/encryption/encryption.js";
 import Randomstring from "randomstring";
-import { emailEmitter } from "../../utils/emails/email.event.js";
+import { sendEmail, subjects } from "../../utils/emails/sendEmails.js";
+import { generateOTPHTML, generateThankYouHTML } from "../../utils/emails/generateHTML.js";
 import { generateToken } from "../../utils/token/token.js";
 import { verifyGoogleToken } from "../../utils/signWithGoogle/google_login.js";
 
@@ -18,7 +19,15 @@ export const sendOTP = async (req, res, next) => {
   // send OTP to the user's email(simulate)
   const otp = Randomstring.generate({ length: 5, charset: "numeric" });
   await OTP.create({ email: req.body.email, otp });
-  emailEmitter.emit("sendOTPEmail", { email: req.body.email, otp, username: req.body.name });
+  // Awaited directly (not fired-and-forgotten through emailEmitter) because
+  // on Vercel's serverless runtime the execution environment can be frozen
+  // the instant this handler returns its response, which was cutting the
+  // detached email send off mid-flight before it ever reached Gmail's SMTP
+  // server — with no error surfaced anywhere, since the process was merely
+  // suspended, not thrown. Awaiting here means the response is only sent
+  // once the email has actually gone out, and a real send failure now
+  // surfaces as a real error to the caller instead of a false "sent" message.
+  await sendEmail({ to: req.body.email, subject: subjects.register, html: generateOTPHTML(req.body.name, otp) });
 
   return res.status(201).json({ message: "OTP has been sent successfully!" });
 };
@@ -41,8 +50,16 @@ export const signUp = async (req, res, next) => {
   const encryptedPhone = encrypt({ data: req.body.phone });
   // Create a new user
   await User.create({ ...req.body, password: hashedPassword, phone: encryptedPhone, isActived: true });
-  // Send thank you email
-  emailEmitter.emit("sendThankYouEmail", { email, username: req.body.name });
+  // Thank-you email is non-critical (account is already created either way),
+  // so a send failure is swallowed rather than failing signup — but it's
+  // still awaited (not fired-and-forgotten via emailEmitter), same reasoning
+  // as sendOTP above, so it actually gets a chance to complete before this
+  // serverless invocation is frozen.
+  try {
+    await sendEmail({ to: email, subject: subjects.signupThankYou, html: generateThankYouHTML(req.body.name) });
+  } catch (err) {
+    console.error("Failed to send thank-you email:", err.message);
+  }
   return res.status(201).json({ message: "account has been created successfully!" });
 };
 
