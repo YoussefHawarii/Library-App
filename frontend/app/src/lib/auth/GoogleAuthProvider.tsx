@@ -18,12 +18,10 @@ if (!googleClientId && typeof window !== "undefined") {
 }
 
 export function GoogleAuthProvider({ children }: { children: React.ReactNode }) {
-  // An empty clientId would throw inside the SDK; render children without
-  // the provider instead so the rest of the app still works when Google
-  // sign-in isn't configured (e.g. local dev without a client ID yet).
-  if (!googleClientId) {
-    return <>{children}</>;
-  }
-
-  return <GoogleOAuthProvider clientId={googleClientId}>{children}</GoogleOAuthProvider>;
+  // Always wrap in the provider — @react-oauth/google does not validate
+  // clientId at mount (it only matters once a widget actually calls Google),
+  // so an empty string here is safe and keeps the Google button visible on
+  // page load per spec (US3/AC1) even when misconfigured, rather than
+  // silently vanishing.
+  return <GoogleOAuthProvider clientId={googleClientId ?? ""}>{children}</GoogleOAuthProvider>;
 }
