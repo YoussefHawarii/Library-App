@@ -29,6 +29,9 @@ export const authApi = {
   login: (input: LoginInput) =>
     http.post<AuthTokens & ApiMessage>("/user/login", input).then((res) => res.data),
 
+  googleLogin: (idToken: string) =>
+    http.post<AuthTokens & ApiMessage>("/user/google-login", { idToken }).then((res) => res.data),
+
   deleteAccount: () =>
     http.delete<ApiMessage>("/user/delete").then((res) => res.data),
 };

@@ -15,6 +15,7 @@ interface AuthContextValue {
   user: SessionUser | null;
   isAuthenticated: boolean;
   login: (input: LoginInput) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -49,6 +50,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTokens(data);
   }, []);
 
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    const data = await authApi.googleLogin(idToken);
+    setTokens(data);
+  }, []);
+
   const logout = useCallback(() => {
     clearTokens();
   }, []);
@@ -58,9 +64,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isAuthenticated: !!user,
       login,
+      loginWithGoogle,
       logout,
     }),
-    [user, login, logout]
+    [user, login, loginWithGoogle, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

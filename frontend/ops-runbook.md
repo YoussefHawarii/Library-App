@@ -14,6 +14,14 @@ backend limitations that shape frontend behavior. Companion to `app/README.md`.
 in your hosting provider's environment configuration before building, not
 after.
 
+Google sign-in requires `NEXT_PUBLIC_GOOGLE_CLIENT_ID` to be set and to match
+the backend's `GOOGLE_CLIENT_ID` exactly — the frontend uses it to render the
+Google button and request an ID token, the backend uses it as the `audience`
+when verifying that token (`verifyGoogleToken`). A mismatch fails Google
+sign-in silently on the backend side (token verification rejects it) while
+the frontend button still renders fine, so it's easy to miss — check both
+values when Google sign-in breaks in a new environment.
+
 ## CI/CD
 
 `.github/workflows/frontend-ci.yml` runs on pushes/PRs touching

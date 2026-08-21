@@ -17,6 +17,7 @@ import {
   type SendOtpForm,
   type SignUpForm,
 } from "@/lib/validation/auth.schemas";
+import { GoogleSignInButton } from "@/features/auth/GoogleSignInButton";
 
 const OTP_COOLDOWN_SECONDS = 60;
 
@@ -101,6 +102,14 @@ export default function SignUpPage() {
           <Button type="submit" loading={otpForm.formState.isSubmitting} className="w-full">
             Send verification code
           </Button>
+
+          <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-ink-faint">
+            <span className="h-px flex-1 bg-border" />
+            or
+            <span className="h-px flex-1 bg-border" />
+          </div>
+
+          <GoogleSignInButton />
         </form>
       ) : (
         <form onSubmit={signUpForm.handleSubmit(completeSignUp)} className="flex flex-col gap-4" noValidate>
