@@ -29,9 +29,9 @@ Web app, matching existing repo layout: backend at repo root (`src/`), frontend 
 
 **Purpose**: Add the one new dependency and env var this feature requires; everything else reuses existing installed packages.
 
-- [ ] T001 [P] Add `@react-oauth/google` to `frontend/app/package.json` dependencies and run `npm install` in `frontend/app/`
-- [ ] T002 [P] Add `NEXT_PUBLIC_GOOGLE_CLIENT_ID` to `frontend/app/.env.local` (same value as backend's existing `GOOGLE_CLIENT_ID`) and document it in `frontend/app/README.md`'s environment variables section
-- [ ] T003 [P] Add a note to `frontend/ops-runbook.md` that Google sign-in requires `NEXT_PUBLIC_GOOGLE_CLIENT_ID` to be set and match the backend's `GOOGLE_CLIENT_ID`
+- [X] T001 [P] Add `@react-oauth/google` to `frontend/app/package.json` dependencies and run `npm install` in `frontend/app/`
+- [X] T002 [P] Add `NEXT_PUBLIC_GOOGLE_CLIENT_ID` to `frontend/app/.env.local` (same value as backend's existing `GOOGLE_CLIENT_ID`) and document it in `frontend/app/README.md`'s environment variables section
+- [X] T003 [P] Add a note to `frontend/ops-runbook.md` that Google sign-in requires `NEXT_PUBLIC_GOOGLE_CLIENT_ID` to be set and match the backend's `GOOGLE_CLIENT_ID`
 
 **Checkpoint**: Dependency installed, env var documented — no behavior yet.
 
@@ -43,9 +43,9 @@ Web app, matching existing repo layout: backend at repo root (`src/`), frontend 
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 Extend `verifyGoogleToken` in `src/utils/signWithGoogle/google_login.js` to return the full payload (it already does via `ticket.getPayload()`) and confirm callers can read `email_verified` off the returned object — add no filtering inside this util so `email_verified`, `email`, and `name` all remain available to callers
-- [ ] T005 Create a `GoogleOAuthProvider` wrapper around the app root in `frontend/app/src/app/layout.tsx` (or a new `frontend/app/src/lib/auth/GoogleAuthProvider.tsx` composed into the existing providers tree), configured with `process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID`, alongside the existing `AuthContext` provider
-- [ ] T006 [P] Add `googleLogin(idToken: string)` to `frontend/app/src/lib/api/auth.api.ts`, calling `http.post<AuthTokens & ApiMessage>("/user/google-login", { idToken })`, matching the existing `login`/`signUp` pattern in that file
+- [X] T004 Extend `verifyGoogleToken` in `src/utils/signWithGoogle/google_login.js` to return the full payload (it already does via `ticket.getPayload()`) and confirm callers can read `email_verified` off the returned object — add no filtering inside this util so `email_verified`, `email`, and `name` all remain available to callers
+- [X] T005 Create a `GoogleOAuthProvider` wrapper around the app root in `frontend/app/src/app/layout.tsx` (or a new `frontend/app/src/lib/auth/GoogleAuthProvider.tsx` composed into the existing providers tree), configured with `process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID`, alongside the existing `AuthContext` provider
+- [X] T006 [P] Add `googleLogin(idToken: string)` to `frontend/app/src/lib/api/auth.api.ts`, calling `http.post<AuthTokens & ApiMessage>("/user/google-login", { idToken })`, matching the existing `login`/`signUp` pattern in that file
 
 **Checkpoint**: Frontend can reach a Google-auth-aware provider tree and has a typed client call; backend util exposes what's needed. User story implementation can now begin.
 
@@ -59,13 +59,13 @@ Web app, matching existing repo layout: backend at repo root (`src/`), frontend 
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Create `GoogleSignInButton` component in `frontend/app/src/features/auth/GoogleSignInButton.tsx` using `<GoogleLogin>` from `@react-oauth/google`; on `onSuccess`, call `authApi.googleLogin(credentialResponse.credential)`
-- [ ] T008 [US1] In `GoogleSignInButton`, on a successful `googleLogin` response, store `access_token`/`refresh_token` via the existing `AuthContext` (same mechanism `login` already uses) and redirect into the signed-in app, matching the existing post-login navigation used by the email/password flow
-- [ ] T009 [US1] In `GoogleSignInButton`, handle the `onError` callback (consent declined/cancelled or Google script failure) by showing a clear, visible, retryable error message in place — do not fail silently (FR-010, US1 Acceptance Scenario 3)
-- [ ] T010 [US1] Render `GoogleSignInButton` on the login page `frontend/app/src/app/login/page.tsx`, alongside the existing email/password form
-- [ ] T011 [US1] Render `GoogleSignInButton` on the signup page `frontend/app/src/app/signup/page.tsx`, alongside the existing OTP sign-up form
-- [ ] T012 [US1] In `src/modules/user/user.service.js`, confirm/adjust `googleLogin()` issues `access_token`/`refresh_token` via `generateToken` with the exact same payload shape and `expiresIn` options as `login()`, so a Google-authenticated session is structurally identical to a password session (FR-009)
-- [ ] T013 [US1] Add a JOI validation schema for `googleLogin` (`idToken` required, non-empty string) in `src/modules/user/user.validation.js`, and wire it into the `POST /user/google-login` route in `src/modules/user/user.controller.js` via the existing `validation.middleware.js`, matching how `login`/`signUp` are already validated
+- [X] T007 [US1] Create `GoogleSignInButton` component in `frontend/app/src/features/auth/GoogleSignInButton.tsx` using `<GoogleLogin>` from `@react-oauth/google`; on `onSuccess`, call `authApi.googleLogin(credentialResponse.credential)`
+- [X] T008 [US1] In `GoogleSignInButton`, on a successful `googleLogin` response, store `access_token`/`refresh_token` via the existing `AuthContext` (same mechanism `login` already uses) and redirect into the signed-in app, matching the existing post-login navigation used by the email/password flow
+- [X] T009 [US1] In `GoogleSignInButton`, handle the `onError` callback (consent declined/cancelled or Google script failure) by showing a clear, visible, retryable error message in place — do not fail silently (FR-010, US1 Acceptance Scenario 3)
+- [X] T010 [US1] Render `GoogleSignInButton` on the login page `frontend/app/src/app/login/page.tsx`, alongside the existing email/password form
+- [X] T011 [US1] Render `GoogleSignInButton` on the signup page `frontend/app/src/app/signup/page.tsx`, alongside the existing OTP sign-up form
+- [X] T012 [US1] In `src/modules/user/user.service.js`, confirm/adjust `googleLogin()` issues `access_token`/`refresh_token` via `generateToken` with the exact same payload shape and `expiresIn` options as `login()`, so a Google-authenticated session is structurally identical to a password session (FR-009)
+- [X] T013 [US1] Add a JOI validation schema for `googleLogin` (`idToken` required, non-empty string) in `src/modules/user/user.validation.js`, and wire it into the `POST /user/google-login` route in `src/modules/user/user.controller.js` via the existing `validation.middleware.js`, matching how `login`/`signUp` are already validated
 
 **Checkpoint**: A new visitor can sign up via Google end-to-end; a returning Google user can sign back in; Google-issued tokens work identically to password-issued tokens. User Story 1 is independently testable via `quickstart.md` Scenario 1.
 
@@ -79,11 +79,11 @@ Web app, matching existing repo layout: backend at repo root (`src/`), frontend 
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] In `src/modules/user/user.service.js`'s `googleLogin()`, after `verifyGoogleToken` resolves, reject with a clear error (`next(new Error(...), { cause: 400 })`) when the payload's `email_verified` is not `true`, *before* any `User.findOne`/`User.create` call (FR-006)
-- [ ] T015 [US2] In `src/modules/user/user.service.js`'s `googleLogin()`, after `findOne({ email })` returns an existing document, reject with a clear "account not available" error when `userExists.isDeleted === true` — do not reactivate or authenticate it (FR-007)
-- [ ] T016 [US2] In `src/modules/user/user.service.js`'s `login()`, after `findOne({ email })` returns an existing document, reject with the same "account not available" error when `existingUser.isDeleted === true`, for parity with the Google path (FR-007 edge case)
-- [ ] T017 [US2] In `src/modules/user/user.service.js`'s `login()`, before calling `comparePassword`, check `existingUser.provider === loginMethods.GOOGLE` (password-less account) and reject with a distinct message (e.g. "This account uses Google sign-in — continue with Google instead.") instead of falling through to the generic invalid-password path (FR-005, US2 Acceptance Scenario 3)
-- [ ] T018 [P] [US2] In `frontend/app/src/app/login/page.tsx`, ensure the login form surfaces `response.data.message` as-is (or maps it to a "Continue with Google" call-to-action) so the new distinct message from T017 reaches the visitor clearly, consistent with the existing `response.data.message`-matching pattern noted in `CLAUDE.md` §12
+- [X] T014 [US2] In `src/modules/user/user.service.js`'s `googleLogin()`, after `verifyGoogleToken` resolves, reject with a clear error (`next(new Error(...), { cause: 400 })`) when the payload's `email_verified` is not `true`, *before* any `User.findOne`/`User.create` call (FR-006)
+- [X] T015 [US2] In `src/modules/user/user.service.js`'s `googleLogin()`, after `findOne({ email })` returns an existing document, reject with a clear "account not available" error when `userExists.isDeleted === true` — do not reactivate or authenticate it (FR-007)
+- [X] T016 [US2] In `src/modules/user/user.service.js`'s `login()`, after `findOne({ email })` returns an existing document, reject with the same "account not available" error when `existingUser.isDeleted === true`, for parity with the Google path (FR-007 edge case)
+- [X] T017 [US2] In `src/modules/user/user.service.js`'s `login()`, before calling `comparePassword`, check `existingUser.provider === loginMethods.GOOGLE` (password-less account) and reject with a distinct message (e.g. "This account uses Google sign-in — continue with Google instead.") instead of falling through to the generic invalid-password path (FR-005, US2 Acceptance Scenario 3)
+- [X] T018 [P] [US2] In `frontend/app/src/app/login/page.tsx`, ensure the login form surfaces `response.data.message` as-is (or maps it to a "Continue with Google" call-to-action) so the new distinct message from T017 reaches the visitor clearly, consistent with the existing `response.data.message`-matching pattern noted in `CLAUDE.md` §12
 
 **Checkpoint**: Duplicate accounts are structurally impossible for a matching email regardless of sign-in order; deleted accounts stay blocked on both paths; password-less accounts get an actionable message. User Story 2 is independently testable via `quickstart.md` Scenarios 2, 3, and 5, and remains correct together with User Story 1.
 
@@ -97,9 +97,9 @@ Web app, matching existing repo layout: backend at repo root (`src/`), frontend 
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Confirm `GoogleSignInButton` (`frontend/app/src/features/auth/GoogleSignInButton.tsx`) renders `@react-oauth/google`'s default, Google-branded button UI (not a custom-styled substitute), so it visually matches a standard "Sign in with Google" affordance
-- [ ] T020 [P] [US3] Confirm the login (`frontend/app/src/app/login/page.tsx`) and signup (`frontend/app/src/app/signup/page.tsx`) pages present the Google button clearly alongside, not hidden behind, the existing email/password fields, with a visible "Continue with Google" label
-- [ ] T021 [US3] In `src/modules/user/user.service.js`'s `googleLogin()`, confirm the `name` field on `User.create(...)` for a new account is populated from the Google payload's `name` claim with no additional manual-entry step required (already implemented — verify it still holds after T014/T015 changes) (FR-008)
+- [X] T019 [US3] Confirm `GoogleSignInButton` (`frontend/app/src/features/auth/GoogleSignInButton.tsx`) renders `@react-oauth/google`'s default, Google-branded button UI (not a custom-styled substitute), so it visually matches a standard "Sign in with Google" affordance
+- [X] T020 [P] [US3] Confirm the login (`frontend/app/src/app/login/page.tsx`) and signup (`frontend/app/src/app/signup/page.tsx`) pages present the Google button clearly alongside, not hidden behind, the existing email/password fields, with a visible "Continue with Google" label
+- [X] T021 [US3] In `src/modules/user/user.service.js`'s `googleLogin()`, confirm the `name` field on `User.create(...)` for a new account is populated from the Google payload's `name` claim with no additional manual-entry step required (already implemented — verify it still holds after T014/T015 changes) (FR-008)
 
 **Checkpoint**: All three user stories are independently functional; the Google entry point is both correct (US1/US2) and recognizable (US3).
 
@@ -109,9 +109,9 @@ Web app, matching existing repo layout: backend at repo root (`src/`), frontend 
 
 **Purpose**: Documentation and end-to-end validation across all stories.
 
-- [ ] T022 [P] Update `frontend/app/README.md` and/or `CLAUDE.md` §12 (Frontend Integration Notes) to note that Google sign-in is now wired end-to-end (no longer just backend-only/experimental for this path)
-- [ ] T023 [P] Confirm no `idToken`, `access_token`, or `refresh_token` values are logged anywhere in the new frontend/backend code paths touched by this feature (T004–T021)
-- [ ] T024 Run all six scenarios in `specs/001-google-login-unification/quickstart.md` end-to-end against a local dev environment and confirm each matches its expected outcome
+- [X] T022 [P] Update `frontend/app/README.md` and/or `CLAUDE.md` §12 (Frontend Integration Notes) to note that Google sign-in is now wired end-to-end (no longer just backend-only/experimental for this path)
+- [X] T023 [P] Confirm no `idToken`, `access_token`, or `refresh_token` values are logged anywhere in the new frontend/backend code paths touched by this feature (T004–T021)
+- [ ] T024 Run all six scenarios in `specs/001-google-login-unification/quickstart.md` end-to-end against a local dev environment and confirm each matches its expected outcome — **not runnable in the implementation sandbox** (needs a live MongoDB `CONNECTION_URL`, a real `GOOGLE_CLIENT_ID`/`NEXT_PUBLIC_GOOGLE_CLIENT_ID` pair, and an interactive browser for the Google consent screen); `npm run build`, `npm run lint`, `npm test` (frontend), and `node --check` (backend) were run instead as the automatable subset — this task is left for the developer to complete locally
 
 ---
 

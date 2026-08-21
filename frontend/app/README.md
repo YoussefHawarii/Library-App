@@ -18,6 +18,7 @@ below.
 ```bash
 npm install
 echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:3000" > .env.local
+echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=<same value as the backend's GOOGLE_CLIENT_ID>" >> .env.local
 npm run dev                  # http://localhost:3000 by default
 ```
 
@@ -31,6 +32,7 @@ different port, e.g. `npm run dev -- -p 3001`.
 | Var | Required | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | yes | Base URL of the backend (bare paths: `/user`, `/book`, `/library`, `/borrowed-book`) |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | yes | Google OAuth client ID used to render "Continue with Google" (must match the backend's `GOOGLE_CLIENT_ID`, which verifies the resulting ID token) |
 
 Never put secrets here — everything prefixed `NEXT_PUBLIC_` is shipped to the
 browser. There is no backend secret this app needs at build/runtime.

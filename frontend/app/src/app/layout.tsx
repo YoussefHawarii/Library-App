@@ -3,6 +3,7 @@ import { Literata, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/lib/query/QueryProvider";
 import { AuthProvider } from "@/lib/auth/AuthContext";
+import { GoogleAuthProvider } from "@/lib/auth/GoogleAuthProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
@@ -32,9 +33,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <QueryProvider>
           <AuthProvider>
-            <Navbar />
-            <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">{children}</main>
-            <Footer />
+            <GoogleAuthProvider>
+              <Navbar />
+              <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">{children}</main>
+              <Footer />
+            </GoogleAuthProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

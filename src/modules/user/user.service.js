@@ -70,6 +70,15 @@ export const login = async (req, res, next) => {
   if (!existingUser) {
     return next(new Error("Email not found"), { cause: 400 });
   }
+  // Soft-deleted accounts are blocked from signing back in via any method
+  if (existingUser.isDeleted) {
+    return next(new Error("This account is no longer available"), { cause: 400 });
+  }
+  // Accounts created via Google have no password set — a generic "Invalid
+  // password" would be misleading here, so point them at the right flow
+  if (existingUser.provider === loginMethods.GOOGLE) {
+    return next(new Error("This account uses Google sign-in — continue with Google instead."), { cause: 400 });
+  }
   // Check if the password is correct
   if (!comparePassword({ password, hashedPassword: existingUser.password })) {
     return next(new Error("Invalid password"), { cause: 400 });
@@ -90,10 +99,19 @@ export const login = async (req, res, next) => {
 export const googleLogin = async (req, res, next) => {
   const { idToken } = req.body;
   // Verify the Google token and get the user's information
-  const { email, name } = await verifyGoogleToken(idToken);
+  const { email, name, email_verified } = await verifyGoogleToken(idToken);
+  // Never trust an unverified email for account matching or creation
+  if (!email_verified) {
+    return next(new Error("Google email is not verified"), { cause: 400 });
+  }
   //check email
   let userExists = await User.findOne({ email });
-  
+
+  // A soft-deleted account must stay blocked, not be silently reactivated
+  if (userExists && userExists.isDeleted) {
+    return next(new Error("This account is no longer available"), { cause: 400 });
+  }
+
   // If the user doesn't exist, create a new user
   if (!userExists) {
     userExists = await User.create({ email, name, isActived: true, provider: loginMethods.GOOGLE });

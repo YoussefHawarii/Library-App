@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/Card";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { parseApiError } from "@/lib/api/http";
 import { loginSchema, type LoginForm } from "@/lib/validation/auth.schemas";
+import { GoogleSignInButton } from "@/features/auth/GoogleSignInButton";
 
 function LoginFormCard() {
   const { login } = useAuth();
@@ -56,6 +57,14 @@ function LoginFormCard() {
           Log in
         </Button>
       </form>
+
+      <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-ink-faint">
+        <span className="h-px flex-1 bg-border" />
+        or
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+      <GoogleSignInButton redirectTo={searchParams.get("next") || "/books"} />
 
       <p className="text-center text-sm text-ink-soft">
         No account yet?{" "}
