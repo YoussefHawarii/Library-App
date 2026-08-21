@@ -181,3 +181,10 @@ Task: "Create GoogleSignInButton in frontend/app/src/features/auth/GoogleSignInB
 - No automated test tasks were generated (not requested in the spec); `quickstart.md` scenarios serve as the independent-test criteria for each story
 - Commit after each task or logical group
 - Stop at any checkpoint to validate a story independently before moving on
+
+---
+
+## Phase 7: Convergence
+
+- [X] T025 Make `GoogleSignInButton` and `GoogleAuthProvider` always render (never return `null`/skip the `GoogleOAuthProvider` wrapper) regardless of whether `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set at build time, so the button is visible on page load as required, per US1/AC1, US3/AC1 (contradicts)
+- [X] T026 Create `frontend/app/.env.local` with `NEXT_PUBLIC_API_BASE_URL` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (mirroring the backend's `GOOGLE_CLIENT_ID`) so the local dev environment actually has Google sign-in configured, per plan.md Technical Context / T002 (missing)

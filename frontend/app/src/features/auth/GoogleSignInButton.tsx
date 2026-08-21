@@ -20,7 +20,15 @@ export function GoogleSignInButton({ redirectTo = "/books" }: { redirectTo?: str
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
-  if (!isGoogleAuthConfigured) return null;
+  if (!isGoogleAuthConfigured) {
+    // Still visible (per US3/AC1) rather than silently disappearing — this
+    // is a deploy-config problem, not a reason to hide the entry point.
+    return (
+      <InlineBanner tone="warning">
+        Google sign-in is not configured for this environment (missing NEXT_PUBLIC_GOOGLE_CLIENT_ID).
+      </InlineBanner>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-2">
